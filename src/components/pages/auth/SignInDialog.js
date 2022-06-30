@@ -7,6 +7,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import { Box, Button } from "@mui/material";
 import { useFormik } from "formik";
 import * as yup from "yup";
+import { useLoginUserMutation } from "../../../features/api/apiSlice";
 
 const validationSchema = yup.object({
   email: yup
@@ -20,14 +21,39 @@ const validationSchema = yup.object({
 });
 
 function SignInDialog({ open, setOpen }) {
+  const [loginUser, { isSuccess, isLoading, data, error }] =
+    useLoginUserMutation();
+
   const formik = useFormik({
     initialValues: {
       email: "foobar@example.com",
       password: "foobar",
     },
     validationSchema: validationSchema,
-    onSubmit: (values) => {
+    onSubmit: async (values) => {
       alert(JSON.stringify(values, null, 2));
+      try {
+        await loginUser({
+          username: "johndll;;",
+          password: "m38rmF$",
+        }).unwrap();
+
+        if (isSuccess) {
+          console.log("Success");
+        }
+
+        if (isLoading) {
+          console.log("Loading");
+        }
+        if (data) {
+          console.log(data);
+        }
+        if (error) {
+          console.log(error);
+        }
+      } catch (error) {
+        console.log(error);
+      }
     },
   });
 

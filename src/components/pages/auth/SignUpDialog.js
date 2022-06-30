@@ -7,6 +7,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import { Button, Box } from "@mui/material";
 import { useFormik } from "formik";
 import * as yup from "yup";
+import { useRegisterUserMutation } from "../../../features/api/apiSlice";
 
 const validationSchema = yup.object({
   firstName: yup.string().required("First name is required"),
@@ -24,6 +25,8 @@ const validationSchema = yup.object({
 });
 
 function SignUpDialog({ open, setOpen }) {
+  const [registerUser, { isLoading, data, error }] = useRegisterUserMutation();
+
   const formik = useFormik({
     initialValues: {
       firstName: "",
@@ -34,10 +37,46 @@ function SignUpDialog({ open, setOpen }) {
       password: "foobar",
     },
     validationSchema: validationSchema,
-    onSubmit: (values) => {
-      alert(JSON.stringify(values, null, 2));
+    onSubmit: async (values) => {
+      // alert(JSON.stringify(values, null, 2));
+      try {
+        await registerUser({
+          email: values.email,
+          username: values.username,
+          password: values.password,
+          name: { firstname: values.firstName, lastname: values.lastName },
+          address: {
+            city: "Kaduna",
+            street: "7835 new road",
+            number: 3,
+            zipcode: "12926-3874",
+            geolocation: { lat: "-37.3159", long: "81.1496" },
+          },
+          phone: values.phone,
+        }).unwrap();
+        if (isLoading) {
+          console.log("Loading");
+        }
+        if (data) {
+          console.log("Data", data);
+        }
+        if (error) {
+          console.log("Error", error);
+        }
+      } catch (err) {
+        console.error("Failed to save the post: ", err);
+      }
     },
   });
+  if (isLoading) {
+    console.log("Loading");
+  }
+  if (data) {
+    console.log("Data", data);
+  }
+  if (error) {
+    console.log("Error", error);
+  }
 
   const handleClose = () => {
     setOpen(false);
